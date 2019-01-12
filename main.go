@@ -4,18 +4,39 @@ import(
 	"fmt"
 	"io/ioutil"
 	"bytes"
+	"flag"
+	"strings"
 )
 
-func cat(filename string) [][]byte {
-	b, err := ioutil.ReadFile(filename)
-	if err != nil {
-		panic(err)
-	}
+//Flags
+var numbered_lines bool
+var fileNames string
 
-	return bytes.Split(b, []byte("\n"))
+func init(){
+	flag.BoolVar(&numbered_lines, "b", false, "number all output lines")
+	flag.BoolVar(&numbered_lines, "number", false,  "number all output lines")
+	flag.StringVar(&fileNames, "f", "", "Path to files seperated by spaces")
+	flag.StringVar(&fileNames, "files", "", "Path to files seperated by spaces")
 }
 
-func print_to_screen( lines [][]byte){
+func parseFileNames(files string) (results []string) {
+	tempt := strings.Split(files, " ")
+	for _, item := range tempt {
+		results = append(results, strings.TrimSpace(item))
+	}
+	return
+}
+
+func openFile(filename string) ([][]byte, error) {
+	b, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return [][]byte{[]byte("")}, err
+	}
+
+	return bytes.Split(b, []byte("\n")), nil
+}
+
+func printToScreen( lines [][]byte){
 	num_of_lines := len(lines) - 1
 
 	for line_number, line := range(lines){
@@ -31,7 +52,7 @@ func print_to_screen( lines [][]byte){
 	}
 }
 
-func suppress_blank_lines(lines [][]byte) [][]byte {
+func suppressBlankLines(lines [][]byte) [][]byte {
 	var lines2 [][]byte
 	for index, line := range lines {
 		if index == 0 {
@@ -49,7 +70,7 @@ func suppress_blank_lines(lines [][]byte) [][]byte {
 	return lines2
 }
 
-func add_show_ends(lines [][]byte) [][]byte {
+func addShowEnds(lines [][]byte) [][]byte {
 	buf := bytes.NewBuffer([]byte(""))
 
 	num_of_lines := len(lines) - 1
@@ -70,7 +91,7 @@ func add_show_ends(lines [][]byte) [][]byte {
 	return result
 }
 
-func add_line_numbers(lines [][]byte) [][]byte {
+func addLineNumbers(lines [][]byte) [][]byte {
 	buf := bytes.NewBuffer([]byte(""))
 
 	num_of_lines := len(lines) - 1
@@ -95,8 +116,17 @@ func add_line_numbers(lines [][]byte) [][]byte {
 }
 
 func main(){
-	lines := cat("notes")
-	lines = suppress_blank_lines(lines)
-	lines = add_show_ends(lines)
-	print_to_screen(lines)
+	flag.Parse()
+
+	files := parseFileNames(fileNames)
+
+	for _, file := range files {
+		lines, err := openFile(file)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+
+		printToScreen(lines)
+	}
 }
