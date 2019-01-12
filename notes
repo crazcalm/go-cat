@@ -1,0 +1,26 @@
+Notes on CAT command:
+--------------------
+
+
+
+
+General:
+- Prints to standard output.
+- When no file is used (or when file == "-"), read standard input.
+- When line have output numbers, add a tab before the line starts.
+- You can combine -s  and -n. Result is that you number the output of -s.
+
+Commands:
+---------
+
+-A, --show-all (equal to -vET)   
+-b, --number-nonblank: if line is not empty, prepend a number (overrides -n)
+-e (equal to -vE)
+-E, --show-ends: add "$" to the end of the line.
+-n, --number: number all output lines
+-s, --squeeze-blank: suppress repeated empty output lines
+-t (equal to -vT)
+-T, --show-tabs: display TAB characters as	(testing)		
+-v, --show-nonprinting (I have no idea what you do).
+--help: check later
+--version: check later
