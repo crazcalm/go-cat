@@ -6,22 +6,36 @@ import(
 	"bytes"
 	"flag"
 	"strings"
+	"io"
+	"os"
 )
 
 //Flags
 var numbered_lines bool
 var fileNames string
+var showEnds bool
+var suppressEmptyLines bool
+var numberNonBlankLines bool
 
 func init(){
-	flag.BoolVar(&numbered_lines, "b", false, "number all output lines")
+	flag.BoolVar(&numbered_lines, "n", false, "number all output lines")
 	flag.BoolVar(&numbered_lines, "number", false,  "number all output lines")
 	flag.StringVar(&fileNames, "f", "", "Path to files seperated by spaces")
 	flag.StringVar(&fileNames, "files", "", "Path to files seperated by spaces")
+	flag.BoolVar(&showEnds, "E", false, "Add '$' to the end of each line")
+	flag.BoolVar(&showEnds, "show-ends", false,"Add '$' to the end of each line")
+	flag.BoolVar(&suppressEmptyLines, "s", false, "suppress repeated empty output lines")
+	flag.BoolVar(&suppressEmptyLines, "squeeze-blank", false, "suppress repeated empty output lines")
+	flag.BoolVar(&numberNonBlankLines, "b", false, "if line is not empty, prepend a number (overrides -n)")
+	flag.BoolVar(&numberNonBlankLines, "number-nonblank", false, "if line is not empty, prepend a number (overrides -n)")
 }
 
 func parseFileNames(files string) (results []string) {
 	tempt := strings.Split(files, " ")
 	for _, item := range tempt {
+		if len(item) == 0 {
+			continue
+		}
 		results = append(results, strings.TrimSpace(item))
 	}
 	return
@@ -36,7 +50,7 @@ func openFile(filename string) ([][]byte, error) {
 	return bytes.Split(b, []byte("\n")), nil
 }
 
-func printToScreen( lines [][]byte){
+func printToScreen(writer io.Writer, lines [][]byte){
 	num_of_lines := len(lines) - 1
 
 	for line_number, line := range(lines){
@@ -127,6 +141,6 @@ func main(){
 			continue
 		}
 
-		printToScreen(lines)
+		printToScreen(os.Stdout, lines)
 	}
 }
