@@ -10,6 +10,9 @@ import(
 	"os"
 )
 
+//Files
+var filePaths []string
+
 //Flags
 var numbered_lines bool
 var fileNames string
@@ -129,8 +132,28 @@ func addLineNumbers(lines [][]byte) [][]byte {
 	return result
 }
 
+// parseArgs -- allows for non-flag arguments to be passed before cmd flags.
+// It does this by finding the index of the first passed flag and setting flag.Parse
+// To start there.
+func parseArgs(){
+	firstArgWithDash := 1
+	for i := 1; i < len(os.Args); i++ {
+		firstArgWithDash = i
+
+		if len(os.Args[i]) > 0 && os.Args[i][0] == '-' {
+			break
+		}else {
+			filePaths = append(filePaths, os.Args[i])
+		}
+	}
+
+	flag.CommandLine.Parse(os.Args[firstArgWithDash:])
+}
+
 func main(){
-	flag.Parse()
+	parseArgs()
+
+	fmt.Println(filePaths)
 
 	files := parseFileNames(fileNames)
 
